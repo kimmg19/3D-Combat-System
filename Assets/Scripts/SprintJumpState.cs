@@ -1,44 +1,51 @@
 using UnityEngine;
-public class SprintJumpState:State
+
+public class SprintJumpState : State
 {
-    float timePassed;
-    float jumpTime;
+    // 필요한 변수들 선언
+    float timePassed; // 경과 시간
+    float jumpTime; // 점프 후 대기 시간
 
+    // SprintJumpState 생성자
     public SprintJumpState(Character _character, StateMachine _stateMachine) : base(_character, _stateMachine)
-	{
-		character = _character;
-		stateMachine = _stateMachine;
-	}
-
-    public override void Enter()
-	{
-		base.Enter();
-        character.animator.applyRootMotion = true;
-        timePassed = 0f;
-        character.animator.SetTrigger("sprintJump");
-
-        jumpTime = 1f;
+    {
+        character = _character;
+        stateMachine = _stateMachine;
     }
 
-	public override void Exit()
-	{
-		base.Exit();
+    // 상태 진입 시 실행되는 메서드
+    public override void Enter()
+    {
+        base.Enter();
+
+        // 초기화
+        character.animator.applyRootMotion = true; // 루트 모션 적용
+        timePassed = 0f;
+        character.animator.SetTrigger("sprintJump"); // 스프린트 점프 애니메이션 재생
+
+        jumpTime = 1f; // 점프 후 대기 시간 설정
+    }
+
+    // 상태 종료 시 실행되는 메서드
+    public override void Exit()
+    {
+        base.Exit();
+
+        // 루트 모션 적용 해제
         character.animator.applyRootMotion = false;
     }
 
-	public override void LogicUpdate()
+    // 로직 업데이트 메서드
+    public override void LogicUpdate()
     {
-        
         base.LogicUpdate();
-		if (timePassed> jumpTime)
-		{
-            character.animator.SetTrigger("move");
-            stateMachine.ChangeState(character.sprinting);
+
+        // 대기 시간이 지나면 스프린트 상태로 전환
+        if (timePassed > jumpTime)
+        {
+            character.animator.SetTrigger("move"); // 이동 애니메이션 재생
+            stateMachine.ChangeState(character.sprinting); // 스프린트 상태로 전환
         }
-        timePassed += Time.deltaTime;
+        timePassed += Time.deltaTime; // 경과 시간 업데이트
     }
-
-
-
 }
-
