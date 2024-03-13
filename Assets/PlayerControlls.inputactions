@@ -16,15 +16,15 @@
                 },
                 {
                     "name": "Look",
-                    "type": "Button",
+                    "type": "Value",
                     "id": "0a93f976-0fd1-4fa6-b6f5-8b461194c841",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "Delta",
                     "processors": "",
                     "interactions": "",
-                    "initialStateCheck": false
+                    "initialStateCheck": true
                 },
                 {
-                    "name": "Jump",
+                    "name": "Roll",
                     "type": "Button",
                     "id": "1a78dbd9-512f-4539-9e48-ace2a14c863f",
                     "expectedControlType": "Button",
@@ -159,7 +159,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "PC",
-                    "action": "Jump",
+                    "action": "Roll",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -199,7 +199,7 @@
                 {
                     "name": "",
                     "id": "922768bb-9cab-4eb0-a747-2d8664c1c9ce",
-                    "path": "",
+                    "path": "<Pointer>/delta",
                     "interactions": "",
                     "processors": "",
                     "groups": "",

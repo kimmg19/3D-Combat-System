@@ -1,99 +1,104 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.UI;
 
 public class Character : MonoBehaviour
 {
-    // 캐릭터의 이동 및 제어에 사용되는 변수들
-    [Header("Controls")]
-    public float playerSpeed = 5.0f; // 플레이어 이동 속도
-    public float crouchSpeed = 2.0f; // 앉았을 때의 이동 속도
-    public float sprintSpeed = 7.0f; // 달릴 때의 이동 속도
-    public float jumpHeight = 0.8f; // 점프 높이
-    public float gravityMultiplier = 2; // 중력 계수
-    public float rotationSpeed = 5f; // 캐릭터 회전 속도
-    public float crouchColliderHeight = 1.35f; // 앉았을 때의 콜라이더 높이
+    [SerializeField] Transform characterBody; // 플레이어 캐릭터의 몸체(Transform)
+    [SerializeField] Transform followCam; // 따라가는 카메라(Transform)
 
-    // 애니메이션 부드러운 전환에 사용되는 변수들
-    [Header("Animation Smoothing")]
-    [Range(0, 1)]
-    public float speedDampTime = 0.1f; // 속도 부드러운 전환 시간
-    [Range(0, 1)]
-    public float velocityDampTime = 0.9f; // 속도 벡터 부드러운 전환 시간
-    [Range(0, 1)]
-    public float rotationDampTime = 0.2f; // 회전 부드러운 전환 시간
-    [Range(0, 1)]
-    public float airControl = 0.5f; // 공중 제어
+    Vector2 moveInput; // 이동 입력
+    CharacterController characterController; // 캐릭터 컨트롤러
+    Animator animator; // 애니메이터
+    bool isRunning; // 달리는지 여부
+    bool isDodging; // 회피 중인지 여부
+    float turnSmoothVelocity;
+    public float playerSpeed = 5f; // 플레이어 이동 속도
+    public float sprintSpeed = 1.5f; // 플레이어 달리기 속도
+    public float smoothDampTime = 0.15f; // 회전 시 부드러운 감속 시간
+    float gravity = -9.8f; // 중력
+    Vector3 velocity; // 캐릭터의 속도
 
-    // 상태 머신과 각 상태를 나타내는 변수들
-    public StateMachine movementSM;
-    public StandingState standing;
-    public JumpingState jumping;
-    public CrouchingState crouching;
-    public LandingState landing;
-    public SprintState sprinting;
-    public SprintJumpState sprintjumping;
-    public CombatState combatting;
-    public AttackState attacking;
-
-    // 각종 필요한 변수들
-    [HideInInspector]
-    public float gravityValue = -9.81f; // 중력 값
-    [HideInInspector]
-    public float normalColliderHeight; // 보통의 콜라이더 높이
-    [HideInInspector]
-    public CharacterController controller; // 캐릭터 컨트롤러
-    [HideInInspector]
-    public PlayerInput playerInput; // 플레이어 입력
-    [HideInInspector]
-    public Transform cameraTransform; // 카메라의 Transform
-    [HideInInspector]
-    public Animator animator; // 애니메이터
-    [HideInInspector]
-    public Vector3 playerVelocity; // 플레이어의 속도 벡터
-
-    // Start is called before the first frame update
-    private void Start()
+    void Start()
     {
-        // 필요한 컴포넌트 및 변수 초기화
-        controller = GetComponent<CharacterController>();
-        animator = GetComponent<Animator>();
-        playerInput = GetComponent<PlayerInput>();
-        cameraTransform = Camera.main.transform;
-
-        // 상태 머신과 상태 객체 초기화
-        movementSM = new StateMachine();
-        standing = new StandingState(this, movementSM);
-        jumping = new JumpingState(this, movementSM);
-        crouching = new CrouchingState(this, movementSM);
-        landing = new LandingState(this, movementSM);
-        sprinting = new SprintState(this, movementSM);
-        sprintjumping = new SprintJumpState(this, movementSM);
-        combatting = new CombatState(this, movementSM);
-        attacking = new AttackState(this, movementSM);
-
-        // 초기 상태 설정
-        movementSM.Initialize(standing);
-
-        // 보통의 콜라이더 높이 설정
-        normalColliderHeight = controller.height;
-
-        // 중력 값 설정
-        gravityValue *= gravityMultiplier;
+        // 필요한 컴포넌트 초기화
+        characterController = characterBody.GetComponent<CharacterController>();
+        animator = characterBody.GetComponent<Animator>();
     }
 
-    // Update is called once per frame
-    private void Update()
+    void Update()
     {
-        // 현재 상태에 따라 입력 처리 및 로직 업데이트 실행
-        movementSM.currentState.HandleInput();
-        movementSM.currentState.LogicUpdate();
+        Move(); // 이동 메서드 호출
+        ApplyGravity(); // 중력 적용
     }
 
-    // FixedUpdate is called a fixed number of times per second
-    private void FixedUpdate()
+    void Move()
     {
-        // 현재 상태에 따라 물리 업데이트 실행
-        movementSM.currentState.PhysicsUpdate();
+        bool isWalking = moveInput.magnitude != 0; // 이동 중인지 확인
+
+        // 이동 및 달리기 상태를 애니메이터에 전달
+        animator.SetBool("isWalking", isWalking);
+        animator.SetBool("isRunning", isRunning);
+
+        if (isWalking)
+        {
+            // 카메라 기준 이동 방향 설정
+            Vector3 lookForward = new Vector3(followCam.forward.x, 0f, followCam.forward.z).normalized;
+            Vector3 lookRight = new Vector3(followCam.right.x, 0f, followCam.right.z).normalized;
+            Vector3 moveDir = lookForward * moveInput.y + lookRight * moveInput.x;
+
+            // 캐릭터의 회전 각도 계산
+            float targetAngle = Mathf.Atan2(moveDir.x, moveDir.z) * Mathf.Rad2Deg;
+            float currentAngle = Mathf.SmoothDampAngle(characterBody.eulerAngles.y, targetAngle, ref turnSmoothVelocity, smoothDampTime);
+            characterBody.rotation = Quaternion.Euler(0f, currentAngle, 0f);
+
+            // 이동 속도에 따라 캐릭터 이동
+            characterController.Move(moveDir * Time.deltaTime * playerSpeed * (isRunning ? sprintSpeed : 1f));
+        }
+    }
+
+    void ApplyGravity()
+    {
+        // 캐릭터가 땅에 있지 않으면 중력 적용
+        if (!characterController.isGrounded)
+        {
+            velocity.y += gravity * Time.deltaTime;
+        } else
+        {
+            // 땅에 닿아있을 때 수직 속도 초기화
+            velocity.y = -0.5f;
+        }
+        characterController.Move(velocity * Time.deltaTime);
+    }
+
+    // 이동 입력을 처리하는 메서드
+    void OnMove(InputValue value)
+    {
+        moveInput = value.Get<Vector2>();
+    }
+
+    // 달리기 입력을 처리하는 메서드
+    void OnSprint()
+    {
+        isRunning = !isRunning; // 달리기 상태 변경
+    }
+
+    // 회피 입력을 처리하는 메서드
+    void OnRoll()
+    {
+        if (moveInput.magnitude != 0 && !isDodging)
+        {
+            isDodging = true;
+            animator.SetTrigger("Dodge");
+            characterController.center = new Vector3(0, 0.5f, 0);
+            characterController.height = 1f;
+        }
+    }
+
+    // 회피 애니메이션 종료 후 호출되는 메서드
+    public void EndDodge()
+    {
+        isDodging = false;
+        characterController.center = new Vector3(0, 0.88f, 0);
+        characterController.height = 1.6f;
     }
 }
