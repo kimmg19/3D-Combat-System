@@ -33,13 +33,11 @@ public class Character : MonoBehaviour
 
     void Move()
     {
-        bool isWalking = moveInput.magnitude != 0; // 이동 중인지 확인
 
         // 이동 및 달리기 상태를 애니메이터에 전달
-        animator.SetBool("isWalking", isWalking);
-        animator.SetBool("isRunning", isRunning);
-
-        if (isWalking)
+        float speed = isRunning ? sprintSpeed : 1f;
+        animator.SetFloat("speed", moveInput.magnitude * speed, 0.1f, Time.deltaTime);
+        if (moveInput.magnitude != 0)
         {
             // 카메라 기준 이동 방향 설정
             Vector3 lookForward = new Vector3(followCam.forward.x, 0f, followCam.forward.z).normalized;
@@ -52,8 +50,9 @@ public class Character : MonoBehaviour
             characterBody.rotation = Quaternion.Euler(0f, currentAngle, 0f);
 
             // 이동 속도에 따라 캐릭터 이동
-            characterController.Move(moveDir * Time.deltaTime * playerSpeed * (isRunning ? sprintSpeed : 1f));
+            characterController.Move(moveDir * Time.deltaTime * playerSpeed * speed);
         }
+
     }
 
     void ApplyGravity()
@@ -70,19 +69,19 @@ public class Character : MonoBehaviour
         characterController.Move(velocity * Time.deltaTime);
     }
 
-    // 이동 입력을 처리하는 메서드
+    // 이동 입력을 처리하는 함수
     void OnMove(InputValue value)
     {
         moveInput = value.Get<Vector2>();
     }
 
-    // 달리기 입력을 처리하는 메서드
+    // 달리기 입력을 처리하는 함수
     void OnSprint()
     {
-        isRunning = !isRunning; // 달리기 상태 변경
+        isRunning = !isRunning; // 달리기 여부 변경
     }
 
-    // 회피 입력을 처리하는 메서드
+    // 회피 입력을 처리하는 함수
     void OnRoll()
     {
         if (moveInput.magnitude != 0 && !isDodging)
@@ -94,11 +93,16 @@ public class Character : MonoBehaviour
         }
     }
 
-    // 회피 애니메이션 종료 후 호출되는 메서드
-    public void EndDodge()
+    // 회피 애니메이션 종료 후 호출되는 이벤트 함수
+    void EndDodge()
     {
         isDodging = false;
         characterController.center = new Vector3(0, 0.88f, 0);
         characterController.height = 1.6f;
+    }
+
+    void OnAttack()
+    {
+        animator.SetTrigger("Attack");
     }
 }
