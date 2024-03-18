@@ -116,11 +116,11 @@ public class Character : MonoBehaviour
 
     void Attack()
     {
-        if (Input.GetMouseButtonDown(0)&&timeSinceAttack>0.8f&& characterController.isGrounded)
+        if (Input.GetMouseButtonDown(0)&&timeSinceAttack>0.8f&& characterController.isGrounded&&!isDodging)
         {
             print("АјАн Сп");
             currentAttack++;
-            //isAttacking = true;
+            isAttacking = true;
             if (currentAttack > 3)
                 currentAttack = 1;
 
