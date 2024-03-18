@@ -1,3 +1,4 @@
+using Unity.VisualScripting.Antlr3.Runtime;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -7,6 +8,7 @@ public class Character : MonoBehaviour
     [SerializeField] Transform followCam; // 따라가는 카메라(Transform)
 
     Vector2 moveInput; // 이동 입력
+    bool attackInput;
     CharacterController characterController; // 캐릭터 컨트롤러
     Animator animator; // 애니메이터
     bool isRunning; // 달리는지 여부
@@ -27,12 +29,15 @@ public class Character : MonoBehaviour
 
     void Update()
     {
+        timeSinceAttack += Time.deltaTime;
+        Attack();
         Move(); // 이동 메서드 호출
         ApplyGravity(); // 중력 적용
     }
 
     void Move()
     {
+        if (isAttacking) return;
 
         // 이동 및 달리기 상태를 애니메이터에 전달
         float speed = isRunning ? sprintSpeed : 1f;
@@ -103,6 +108,30 @@ public class Character : MonoBehaviour
 
     void OnAttack()
     {
-        animator.SetTrigger("Attack");
+        isAttacking=!isAttacking;
+    }
+    bool isAttacking;
+    float timeSinceAttack;
+    int currentAttack=0;
+
+    void Attack()
+    {
+        if (Input.GetMouseButtonDown(0)&&timeSinceAttack>0.8f&& characterController.isGrounded)
+        {
+            print("공격 중");
+            currentAttack++;
+            //isAttacking = true;
+            if (currentAttack > 3)
+                currentAttack = 1;
+
+            if (timeSinceAttack > 1.0f)
+                currentAttack = 1;
+            animator.SetTrigger("Attack" + currentAttack);
+            timeSinceAttack = 0;
+        }
+    }
+    void ResetAttack()
+    {
+        isAttacking=false;
     }
 }
