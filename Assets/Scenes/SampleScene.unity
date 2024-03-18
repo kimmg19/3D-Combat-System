@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.44657826, g: 0.49641263, b: 0.57481676, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -742,7 +742,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.39782357, y: 0.000000027342505, z: -0.00000001185607, w: 0.917462}
+  m_LocalRotation: {x: 0.3978236, y: -0.000000045655273, z: 0.000000019796728, w: 0.917462}
   m_LocalPosition: {x: 0, y: 4, z: -2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -1821,7 +1821,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4986199429543306497}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.44987357, y: -0.00000002661623, z: 0.000000013407279, w: 0.89309233}
+  m_LocalRotation: {x: 0.44987363, y: 0.000000036579568, z: -0.000000018426071, w: 0.8930923}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -1853,7 +1853,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1157986960875608757}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.3978235, y: 0.0000000273425, z: -0.0000000118560655, w: 0.917462}
+  m_LocalRotation: {x: 0.39782354, y: -0.000000024273012, z: 0.000000010525096, w: 0.917462}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -2107,7 +2107,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8432953606664927890}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.44987354, y: 3.4300083e-15, z: -2.6622906e-15, w: 0.89309233}
+  m_LocalRotation: {x: 0.44987357, y: 0.00000002661623, z: -0.000000013407279, w: 0.89309233}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
